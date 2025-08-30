@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
+import os
 from .freespacebase import FreeSpaceConditionBase
-from autoremovetorrents.compatibility.disk_usage_ import disk_usage_
 
 class FreeSpaceCondition(FreeSpaceConditionBase):
     def __init__(self, settings):
@@ -9,5 +9,17 @@ class FreeSpaceCondition(FreeSpaceConditionBase):
         self._path = settings['path']
 
     def apply(self, client_status, torrents):
-        free_space = disk_usage_(self._path)['free']
+        # Calculate directory size using configured path
+        total_size = 0
+        if os.path.exists(self._path):
+            for dirpath, dirnames, filenames in os.walk(self._path):
+                for filename in filenames:
+                    filepath = os.path.join(dirpath, filename)
+                    try:
+                        total_size += os.path.getsize(filepath)
+                    except (OSError, IOError):
+                        continue
+        
+        # Use directory size as free_space (keeping variable name unchanged)
+        free_space = total_size
         FreeSpaceConditionBase.apply(self, free_space, torrents)

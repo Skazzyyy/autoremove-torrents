@@ -11,8 +11,8 @@ class FreeSpaceConditionBase(ConditionWithSort):
         torrents = list(torrents)
         ConditionWithSort.sort_torrents(self, torrents)
         for torrent in torrents:
-            if free_space < self._min:
-                free_space += torrent.size
+            if free_space > self._min:  # Changed from < to > for directory size check
+                free_space -= torrent.size  # Changed from += to -= since we're reducing directory size
                 self.remove.add(torrent)
             else:
                 self.remain.add(torrent)
